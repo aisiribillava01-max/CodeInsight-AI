@@ -1,4 +1,4 @@
-## Code Intelligence and Evaluation (Member 2)
+﻿## Code Intelligence and Evaluation (Member 2)
 
 ### Module
 Given a GitHub pull request URL, the code engine fetches the changed files and diffs (GitHub API), parses the diffs
@@ -44,7 +44,7 @@ a file excerpt. One run per cell.
 because it was outside the changed lines. Of the 15 runs, 4 produced a verified repair, 5 only flagged other issues
 and 6 found nothing. Three of the four verified repairs needed a second attempt, so the failure feedback mattered.
 PR 7332 was never solved. With one run per cell and five PRs, the differences between the three conditions are not
-statistically meaningful. [AI patch vs human fix: 7502 ___, 7553 ___ (equivalent / different but valid / partial)]
+statistically meaningful. Comparison with the human fixes (function-only condition): for PR 7502 the AI replaced the `isinstance(fp, _SupportsRead)` check with `hasattr(fp, "read")`, while the human fix kept the `isinstance` check and added `or hasattr(fp, "read")`; any object that satisfies the protocol also has a `read` attribute, so the two behave the same in practice (equivalent, with a simpler condition). The AI's own explanation for this patch was partly wrong, because the existing code already calls `isinstance` on that protocol, but the patch itself is sound. For PR 7553 the AI's validation uses the same logic as the human fix (reject booleans and non-numeric scalar timeouts with a `ValueError`); only the wording of the error message differs (equivalent).
 
 ### Limitations
 1. One repository (psf/requests), Windows, Python 3.13.
