@@ -179,6 +179,7 @@ def run_pipeline(
     # ------------------------------------------------------------------
     findings: list[Finding] = []
     review_error: str | None = None
+    llm_errors: list[str] = []
     if functions is not None:
         try:
             for func_item in functions:
@@ -195,6 +196,7 @@ def run_pipeline(
                     start_line=f_start,
                     extra_context=extra_context,
                     context_level=context_level,
+                    errors=llm_errors,
                 )
                 findings.extend(func_findings)
         except Exception as err:
@@ -212,6 +214,7 @@ def run_pipeline(
                 client=client,
                 extra_context=extra_context,
                 context_level=context_level,
+                errors=llm_errors,
             )
         except Exception as err:
             review_error = (
@@ -373,6 +376,13 @@ def run_pipeline(
         "summary": summary,
     }
 
+    if llm_errors:
+        result["review_failed"] = True
+        result["llm_error"] = "; ".join(llm_errors)
+        pipeline_errors.extend(llm_errors)
+    else:
+        result["review_failed"] = False
+
     if pipeline_errors:
         result["pipeline_errors"] = pipeline_errors
 
@@ -398,5 +408,7 @@ def _error_result(file: str, error: str, context_level: str | None = None) -> di
         "discarded": [],
         "repairs": [],
         "summary": {"verified": 0, "failed": 0, "retried": 0},
+        "review_failed": True,
+        "llm_error": error,
         "pipeline_errors": [error],
     }
